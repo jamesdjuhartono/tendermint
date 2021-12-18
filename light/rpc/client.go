@@ -617,7 +617,7 @@ func (c *Client) UnsubscribeAllWS(ctx *rpctypes.Context) (*ctypes.ResultUnsubscr
 const (
 	// see README
 	defaultPerPage = 30
-	maxPerPage     = 100
+	maxPerPage     = 1000
 )
 
 func validatePage(pagePtr *int, perPage, totalCount int) (int, error) {
