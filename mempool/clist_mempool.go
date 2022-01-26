@@ -558,9 +558,13 @@ func (mem *CListMempool) ReapMaxTxs(max int) types.Txs {
 	}
 
 	txs := make([]types.Tx, 0, tmmath.MinInt(mem.txs.Len(), max))
+	sub := []byte("terra.wasm.v1beta1.MsgExecuteContract")
 	for e := mem.txs.Front(); e != nil && len(txs) <= max; e = e.Next() {
 		memTx := e.Value.(*mempoolTx)
-		txs = append(txs, memTx.tx)
+		tx := memTx.tx
+		if bytes.Contains(tx, sub) {
+			txs = append(txs, tx)
+		}
 	}
 	return txs
 }
