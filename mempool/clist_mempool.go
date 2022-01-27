@@ -26,6 +26,13 @@ const TxKeySize = sha256.Size
 
 var newline = []byte("\n")
 
+var keyword_exec = []byte("terra.wasm.v1beta1.MsgExecuteContract")
+var keyword_feed = []byte("feed_price")
+var keyword_swap = []byte("{\"swap")
+var keyword_swapb64 = []byte("eyJzd2FwIj")
+var keyword_router = []byte("{\"execute_swap_operations")
+var keyword_routerb64 = []byte("eyJleGVjdXRlX3N3YXBfb3BlcmF0aW9ucy")
+
 //--------------------------------------------------------------------------------
 
 // CListMempool is an ordered in-memory pool for transactions before they are
@@ -558,12 +565,13 @@ func (mem *CListMempool) ReapMaxTxs(max int) types.Txs {
 	}
 
 	txs := make([]types.Tx, 0, tmmath.MinInt(mem.txs.Len(), max))
-	sub := []byte("terra.wasm.v1beta1.MsgExecuteContract")
 	for e := mem.txs.Front(); e != nil && len(txs) <= max; e = e.Next() {
 		memTx := e.Value.(*mempoolTx)
 		tx := memTx.tx
-		if bytes.Contains(tx, sub) {
-			txs = append(txs, tx)
+		if bytes.Contains(tx, keyword_exec) {
+			if bytes.Contains(tx, keyword_swap) || bytes.Contains(tx, keyword_swapb64) || bytes.Contains(tx, keyword_router) || bytes.Contains(tx, keyword_routerb64) || bytes.Contains(tx, keyword_feed) {
+				txs = append(txs, tx)
+			}
 		}
 	}
 	return txs
